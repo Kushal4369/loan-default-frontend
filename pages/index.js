@@ -1,78 +1,180 @@
-import Image from "next/image";
-import { Geist, Geist_Mono } from "next/font/google";
+"use client";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+export default function MLInputPage() {
+  const [formData, setFormData] = useState({
+    ID: "",
+    Age: "",
+    Experience: "",
+    Income: "",
+    ZIP_Code: "10011",
+    Family: "1",
+    CCAvg: "",
+    Education: "1",
+    Mortgage: "",
+    Personal_Loan: false,
+    Securities_Account: false,
+    CD_Account: false,
+    Online: false,
+    CreditCard: false,
+  });
 
-export default function Home() {
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: type === "checkbox" ? checked : value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setResult(null);
+
+    try {
+      const res = await fetch("http://127.0.0.1:5000/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      setResult(data);
+    } catch (error) {
+      setResult({ error: "❌ Could not connect to Flask server." });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div
-      className={`${geistSans.className} ${geistMono.className} flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black`}
-    >
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the index.js file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-black flex items-center justify-center p-6 text-gray-100">
+      <motion.div
+        initial={{ opacity: 0, y: 60 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="bg-gray-900/70 backdrop-blur-xl rounded-2xl shadow-2xl p-8 w-full max-w-3xl border border-gray-800"
+      >
+        <h1 className="text-4xl font-bold text-center text-indigo-400 mb-8">
+          💡 Customer Default Prediction
+        </h1>
+
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Numeric Inputs */}
+          {["ID", "Age", "Experience", "Income", "CCAvg", "Mortgage"].map((key) => (
+            <div key={key} className="flex flex-col">
+              <label className="text-gray-300 font-medium mb-1">{key.replace(/_/g, " ")}</label>
+              <input
+                type="number"
+                name={key}
+                value={formData[key]}
+                onChange={handleChange}
+                className="bg-gray-950 border border-gray-700 rounded-lg p-2 text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required
+              />
+            </div>
+          ))}
+
+          {/* Dropdowns */}
+          <div className="flex flex-col">
+            <label className="text-gray-300 font-medium mb-1">Family Members</label>
+            <select
+              name="Family"
+              value={formData.Family}
+              onChange={handleChange}
+              className="bg-gray-950 border border-gray-700 rounded-lg p-2 text-gray-200 focus:ring-2 focus:ring-indigo-500"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              <option value="1">1 Member</option>
+              <option value="2">2 Members</option>
+              <option value="3">3 Members</option>
+              <option value="4">4+ Members</option>
+            </select>
+          </div>
+
+          <div className="flex flex-col">
+            <label className="text-gray-300 font-medium mb-1">Education Level</label>
+            <select
+              name="Education"
+              value={formData.Education}
+              onChange={handleChange}
+              className="bg-gray-950 border border-gray-700 rounded-lg p-2 text-gray-200 focus:ring-2 focus:ring-indigo-500"
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+              <option value="1">Undergraduate</option>
+              <option value="2">Graduate</option>
+              <option value="3">Advanced/Professional</option>
+            </select>
+          </div>
+
+          {/* Boolean Toggles */}
+          {[
+            "Personal_Loan",
+            "Securities_Account",
+            "CD_Account",
+            "Online",
+            "CreditCard",
+          ].map((key) => (
+            <label key={key} className="flex items-center gap-3 text-gray-300 font-medium">
+              <input
+                type="checkbox"
+                name={key}
+                checked={formData[key]}
+                onChange={handleChange}
+                className="w-5 h-5 accent-indigo-500 cursor-pointer"
+              />
+              {key.replace(/_/g, " ")}
+            </label>
+          ))}
+
+          <motion.button
+            whileTap={{ scale: 0.96 }}
+            type="submit"
+            disabled={loading}
+            className="col-span-full mt-6 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg transition duration-300 disabled:bg-indigo-400"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs/pages/getting-started?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+            {loading ? "Predicting..." : "🔍 Predict"}
+          </motion.button>
+        </form>
+
+        {/* RESULT SECTION */}
+        <AnimatePresence>
+          {result && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.6 }}
+              className="mt-8 p-6 rounded-xl bg-gray-950/80 border border-gray-800 text-center shadow-lg"
+            >
+              {result.error ? (
+                <p className="text-red-400 font-semibold">{result.error}</p>
+              ) : result.default === true ? (
+                <div>
+                  <h2 className="text-2xl font-bold text-red-500 mb-2 animate-pulse">
+                    ⚠️ Customer Will Default
+                  </h2>
+                  <p className="text-gray-300">
+                    The model predicts a high risk of loan default.
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  <h2 className="text-2xl font-bold text-green-400 mb-2 animate-pulse">
+                    ✅ Customer Will Not Default
+                  </h2>
+                  <p className="text-gray-300">
+                    The model predicts the customer is unlikely to default.
+                  </p>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
     </div>
   );
 }
