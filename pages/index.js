@@ -5,16 +5,12 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function MLInputPage() {
   const [formData, setFormData] = useState({
-    ID: "",
     Age: "",
-    Experience: "",
     Income: "",
-    ZIP_Code: "10011",
     Family: "1",
     CCAvg: "",
     Education: "1",
     Mortgage: "",
-    Personal_Loan: false,
     Securities_Account: false,
     CD_Account: false,
     Online: false,
@@ -66,7 +62,7 @@ export default function MLInputPage() {
 
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Numeric Inputs */}
-          {["ID", "Age", "Experience", "Income", "CCAvg", "Mortgage"].map((key) => (
+          {["Age", "Income", "CCAvg","Mortage"].map((key) => (
             <div key={key} className="flex flex-col">
               <label className="text-gray-300 font-medium mb-1">{key.replace(/_/g, " ")}</label>
               <input
@@ -112,7 +108,6 @@ export default function MLInputPage() {
 
           {/* Boolean Toggles */}
           {[
-            "Personal_Loan",
             "Securities_Account",
             "CD_Account",
             "Online",
