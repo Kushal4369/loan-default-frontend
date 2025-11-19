@@ -5,12 +5,12 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function MLInputPage() {
   const [formData, setFormData] = useState({
-    Age: 18,
-    Income: 1000,
-    Family: 1,
-    CCAvg: 0.1,
-    Education: 1,
-    Mortgage: 1,
+    Age: "",
+    Income: "",
+    Family: "1",
+    CCAvg: "",
+    Education: "1",
+    Mortgage: "",
     Securities_Account: false,
     CD_Account: false,
     Online: false,
@@ -32,26 +32,6 @@ export default function MLInputPage() {
     e.preventDefault();
     setLoading(true);
     setResult(null);
-
-    if (formData.Age < 18 || formData.Income < 0 || formData.CCAvg < 0 || formData.Mortgage < 0) {
-      setResult({ error: "❌ Please enter valid numeric values." });
-      setLoading(false);
-      return;
-    }
-
-    if (formData.Education < 1 || formData.Education > 3) {
-      setResult({ error: "❌ Education level must be between 1 and 3." });
-      setLoading(false);
-      return;
-    }
-
-    if (formData.Family < 1) {
-      setResult({ error: "❌ Family members must be at least 1." });
-      setLoading(false);
-      return;
-    }
-
-    
 
     try {
       const res = await fetch("https://loan-default-backend.onrender.com/predict", {
@@ -82,7 +62,7 @@ export default function MLInputPage() {
 
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Numeric Inputs */}
-          {["Age", "Income", "CCAvg","Mortage"].map((key) => (
+          {["Age", "Income", "CCAvg","Mortgage"].map((key) => (
             <div key={key} className="flex flex-col">
               <label className="text-gray-300 font-medium mb-1">{key.replace(/_/g, " ")}</label>
               <input
