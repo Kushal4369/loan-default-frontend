@@ -16,6 +16,31 @@ export default function MLInputPage() {
     Online: false,
     CreditCard: false,
   });
+  const fieldInfo = {
+    ID: "Unique customer ID.",
+    Age: "Age of the customer in years.",
+    Experience: "Years of professional experience.",
+    Income: "Customer's annual income in thousands.",
+    Family: "Number of family members (1–4).",
+    CCAvg: "Average monthly credit card spending.",
+    Education: "1 = Undergrad, 2 = Graduate, 3 = Professional.",
+    Mortgage: "Home mortgage value (in thousands).",
+    Personal_Loan: "Whether customer already has a personal loan.",
+    Securities_Account: "Whether customer owns a securities account.",
+    CD_Account: "Whether customer has a certificate deposit account.",
+    Online: "Whether customer uses online banking.",
+    CreditCard: "Whether customer has the bank's issued credit card.",
+  };
+
+  const [showInfo, setShowInfo] = useState(false);
+  const [infoTitle, setInfoTitle] = useState("");
+  const [infoText, setInfoText] = useState("");
+
+  const openInfo = (title, text) => {
+    setInfoTitle(title);
+    setInfoText(text);
+    setShowInfo(true);
+  };
 
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -62,17 +87,27 @@ export default function MLInputPage() {
 
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Numeric Inputs */}
-          {["Age", "Income", "CCAvg","Mortgage"].map((key) => (
+          {["Age", "Income", "CCAvg", "Mortgage"].map((key) => (
             <div key={key} className="flex flex-col">
-              <label className="text-gray-300 font-medium mb-1">{key.replace(/_/g, " ")}</label>
+              <label className="text-gray-300 font-medium flex items-center gap-2">
+                {key}
+                <span
+                  onClick={() => openInfo(key, fieldInfo[key])}
+                  className="cursor-pointer text-indigo-400 hover:text-indigo-300 text-lg"
+                >
+                  ⓘ
+                </span>
+              </label>
+
               <input
                 type="number"
+                className="w-full p-2 rounded-lg bg-gray-800 text-white border border-gray-700"
+                placeholder={`Enter ${key}`}
+                onChange={handleChange}
                 name={key}
                 value={formData[key]}
-                onChange={handleChange}
-                className="bg-gray-950 border border-gray-700 rounded-lg p-2 text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                required
               />
+
             </div>
           ))}
 
@@ -113,7 +148,15 @@ export default function MLInputPage() {
             "Online",
             "CreditCard",
           ].map((key) => (
+
+
             <label key={key} className="flex items-center gap-3 text-gray-300 font-medium">
+              <span
+                onClick={() => openInfo("Personal Loan", fieldInfo[key])}
+                className="cursor-pointer text-indigo-400 hover:text-indigo-300 text-lg"
+              >
+                ⓘ
+              </span>
               <input
                 type="checkbox"
                 name={key}
@@ -170,6 +213,23 @@ export default function MLInputPage() {
           )}
         </AnimatePresence>
       </motion.div>
+      {showInfo && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-gray-900 text-white p-6 rounded-xl w-full max-w-md shadow-lg border border-gray-700">
+            <h2 className="text-xl font-semibold mb-3">{infoTitle}</h2>
+            <p className="text-gray-300">{infoText}</p>
+
+            <button
+              onClick={() => setShowInfo(false)}
+              className="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 py-2 rounded-lg transition"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
+
   );
 }
